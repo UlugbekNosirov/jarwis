@@ -29,7 +29,7 @@ bot = Bot(token=BOT_TOKEN)
 def get_or_create_chat(chat_id: int):
     if chat_id not in chat_sessions:
         chat_sessions[chat_id] = client.chats.create(
-            model="gemini-1.5-flash",
+            model="gemini-3.6-flash",  # <-- Shuni gemini-3.6-flash ga o'zgartiring
             config=genai_types.GenerateContentConfig(
                 system_instruction=SYSTEM_INSTRUCTION,
                 temperature=0.7,
@@ -41,8 +41,17 @@ def get_or_create_chat(chat_id: int):
 async def command_start_handler(message: types.Message):
     if OWNER_ID and str(message.from_user.id) != OWNER_ID:
         return
-    await message.answer(f"Xush ko'rdik, janob {message.from_user.first_name}. Men Jarvisman.")
 
+    chat_sessions[message.chat.id] = client.chats.create(
+        model="gemini-3.6-flash",  # <-- Bu yerni ham gemini-3.6-flash ga o'zgartiring
+        config=genai_types.GenerateContentConfig(
+            system_instruction=SYSTEM_INSTRUCTION,
+            temperature=0.7,
+        )
+    )
+    user_name = message.from_user.first_name
+    await message.answer(f"Xush ko'rdik, janob {user_name}. Men Jarvisman.")
+    
 @dp.message()
 async def message_handler(message: types.Message):
     if OWNER_ID and str(message.from_user.id) != OWNER_ID:
